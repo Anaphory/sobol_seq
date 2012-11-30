@@ -56,13 +56,11 @@ def i4_bit_hi1 ( n ):
 
     Output, integer BIT, the number of bits base 2.
   """
-  i = math.floor ( n )
+  i = int ( n )
   bit = 0
-  while ( 1 ):
-    if ( i <= 0 ):
-      break
+  while ( i > 0 ):
     bit += 1
-    i = math.floor ( i / 2. )
+    i = i >> 1
   return bit
 
 def i4_bit_lo0 ( n ):
@@ -101,15 +99,11 @@ def i4_bit_lo0 ( n ):
 
     Output, integer BIT, the position of the low 1 bit.
   """
-  bit = 0
-  i = math.floor ( n )
-  while ( 1 ):
+  bit = 1
+  i = int ( n )
+  while ( i != i >> 1 << 1):
     bit = bit + 1
-    i2 = math.floor ( i / 2. )
-    if ( i == 2 * i2 ):
-      break
-
-    i = i2
+    i = i >> 1
   return bit
 
 def i4_sobol_generate ( m, n, skip ):
@@ -202,11 +196,7 @@ def i4_sobol ( dim_num, seed ):
 
 #  Initialize (part of) V.
     v = numpy.zeros((dim_max,log_max))
-    v[0:40,0] = numpy.transpose([ \
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ])
+    v[:,0] = numpy.ones((dim_max,))
 
     v[2:40,1] = numpy.transpose([ \
         1, 3, 1, 3, 1, 3, 3, 1, \
@@ -279,19 +269,19 @@ def i4_sobol ( dim_num, seed ):
 
 #  The bits of the integer POLY(I) gives the form of polynomial I.
 #  Find the degree of polynomial I from binary encoding.
-      j = poly[i-1]
+      j = int(poly[i-1])
       m = 0
       while ( 1 ):
-        j = math.floor ( j / 2. )
+        j = j >> 1
         if ( j <= 0 ):
           break
         m = m + 1
 
 #  Expand this bit pattern to separate components of the logical array INCLUD.
-      j = poly[i-1]
+      j = int(poly[i-1])
       includ=numpy.zeros(m)
       for k in xrange(m, 0, -1):
-        j2 = math.floor ( j / 2. )
+        j2 = j >> 1
         includ[k-1] =  (j != 2 * j2 )
         j = j2
 
@@ -316,7 +306,7 @@ def i4_sobol ( dim_num, seed ):
     recipd = 1.0 / ( 2 * l )
     lastq=numpy.zeros(dim_num)
 
-  seed = int(math.floor ( seed ))
+  seed = int( seed )
 
   if ( seed < 0 ):
     seed = 0
@@ -413,16 +403,12 @@ def i4_uniform ( a, b, seed ):
     print 'I4_UNIFORM - Fatal error!'
     print '  Input SEED = 0!'
 
-  seed = math.floor ( seed )
   a = round ( a )
   b = round ( b )
 
-  seed = numpy.mod ( seed, 2147483647 )
+  seed = int(seed % 2147483647)
 
-  if ( seed < 0 ) :
-    seed = seed + 2147483647
-
-  k = math.floor ( seed / 127773 )
+  k = ( seed / 127773 )
 
   seed = 16807 * ( seed - k * 127773 ) - k * 2836
 
@@ -470,7 +456,7 @@ def prime_ge ( n ):
     Output, integer P, the smallest prime number that is greater
     than or equal to N.  
   """
-  p = max ( math.ceil ( n ), 2 )
+  p = max ( n//1, 2 )
   while ( not is_prime ( p ) ):
     p = p + 1
 
